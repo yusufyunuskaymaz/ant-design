@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Button, Checkbox, Col, Flex, Form, Input, Row,notification } from "antd";
+import React, { useEffect } from "react";
+import { Button, Col, Form, Input, Row } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IUsers } from "../types";
 import { useUpdateUsersMutation } from "../features/api/apiSlice";
-import NotifyUser from "./NotifyUser";
 
 type FieldType = {
   name: string;
@@ -16,7 +15,6 @@ type FieldType = {
 const UpdateForm = () => {
   const { state: data } = useLocation();
 
-  const [api, contextHolder] = notification.useNotification();
 
 
   const navigate = useNavigate()
@@ -40,7 +38,7 @@ const UpdateForm = () => {
       sessionStorage.setItem("updateAlert","true")
       navigate("/")
     }
-  }, [isSuccess,navigate]);
+  }, [isSuccess]);
 
 
   const onFinishFailed = (errorInfo: any) => {
@@ -105,7 +103,6 @@ const UpdateForm = () => {
           </Form.Item>
         </Form>
       </Col>
-      {contextHolder}
     </Row>
   );
 };
