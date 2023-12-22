@@ -182,7 +182,7 @@ function UserTable() {
           <Table
             dataSource={filteredUsers ?? memoizedUsers}
             columns={columns}
-            pagination={{ pageSize: 5 }}
+            pagination={{ pageSize: 5,showSizeChanger: false, }}
             loading={{
               indicator: (
                 <div>
