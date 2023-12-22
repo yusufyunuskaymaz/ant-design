@@ -1,10 +1,11 @@
 import {
   Avatar,
   Button,
+  Card,
+  Col,
   Flex,
-  Input,
-  Layout,
   Modal,
+  Row,
   Spin,
   Table,
   Typography,
@@ -122,18 +123,18 @@ function UserTable() {
       dataIndex: "editDelete",
       key: "editDelete",
       render: (text: string, record: IUsers) => (
-        <div>
+        <Flex gap={5}>
           <Button
             type="primary"
             onClick={() => navigate("update", { state: record })}
           >
             Düzenle
           </Button>{" "}
-          -{" "}
+
           <Button danger onClick={() => handleDelete(record.key)}>
             Sil
           </Button>
-        </div>
+        </Flex>
       ),
     },
   ];
@@ -163,45 +164,45 @@ function UserTable() {
   };
 
   return (
-    <Layout
-      style={{
-        padding: 8,
-      }}
-    >
-      <Title style={{ textAlign: "center" }} level={2}>
+    <Card style={{ padding: 0 }}>
+      <Title style={{ textAlign: "center", margin: "1.5rem 0" }} level={2}>
         Users Table
       </Title>
       <Flex justify="end">
         <Search
           placeholder="Bir şeyler arayın..."
           allowClear
-          enterButton="Search"
           size="large"
           onChange={(e) => searchData(e.target.value)}
           style={{ width: "300px", marginBottom: ".5rem" }}
         />
       </Flex>
-      <Table
-        dataSource={filteredUsers ?? memoizedUsers}
-        columns={columns}
-        pagination={{ pageSize: 5 }}
-        loading={{
-          indicator: (
-            <div>
-              <Spin />
-            </div>
-          ),
-          spinning: isLoading,
-        }}
-      />
-      <Toaster />
-      <Modal
-        title="Silmek İstediğinizden Emin misiniz?"
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      ></Modal>
-    </Layout>
+      <Row>
+        <Col  xs={24}>
+          <Table
+            dataSource={filteredUsers ?? memoizedUsers}
+            columns={columns}
+            pagination={{ pageSize: 5 }}
+            loading={{
+              indicator: (
+                <div>
+                  <Spin />
+                </div>
+              ),
+              spinning: isLoading,
+            }}
+            style={{width:"100%"}}
+          />
+          <Toaster />
+          <Modal
+            title="Silmek İstediğinizden Emin misiniz?"
+            open={isModalOpen}
+            onOk={handleOk}
+            onCancel={handleCancel}
+          ></Modal>
+        </Col>
+      </Row>
+    </Card>
   );
 }
 

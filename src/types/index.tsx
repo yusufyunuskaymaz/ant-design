@@ -14,6 +14,5 @@ export type FieldType = {
   city: string;
   country: string;
   job: string;
-  createdAt: string;
 };
 
