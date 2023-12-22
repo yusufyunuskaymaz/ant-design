@@ -1,14 +1,51 @@
-import { Avatar, Button, Spin, Table } from "antd";
-import { useGetUsersQuery } from "../features/api/apiSlice";
+import {
+  Avatar,
+  Button,
+  Flex,
+  Input,
+  Layout,
+  Modal,
+  Spin,
+  Table,
+  Typography,
+} from "antd";
+import {
+  useDeleteUserMutation,
+  useGetUsersQuery,
+} from "../features/api/apiSlice";
 import { IUsers } from "../types";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from 'react-hot-toast';
-
+import toast, { Toaster } from "react-hot-toast";
+import Search from "antd/es/input/Search";
 
 function UserTable() {
   const navigate = useNavigate();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const deleteUserID = useRef("");
+
+  const [deleteUser, { isSuccess: deleteIsSuccess }] = useDeleteUserMutation();
+
+  useEffect(() => {
+    if (deleteIsSuccess) {
+      notifySuccess("Silme İşlemi Başarılı");
+    }
+  }, [deleteIsSuccess]);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+    deleteUser(deleteUserID.current);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   const {
     data: users,
@@ -30,9 +67,19 @@ function UserTable() {
     }));
   }, [users]);
 
+  const handleDelete = (userId: string) => {
+    deleteUserID.current = userId;
+    showModal();
+  };
+
   const columns = [
     {
-      title: "",
+      title: "ID",
+      dataIndex: "key",
+      key: "key",
+    },
+    {
+      title: "Avatar",
       dataIndex: "avatar",
       key: "avatar",
       render: (data: string) => <Avatar src={data} />,
@@ -48,7 +95,7 @@ function UserTable() {
       title: "City",
       dataIndex: "city",
       key: "city",
-      sorter: (a:IUsers, b:IUsers) => (a.city < b.city ? -1 : 1),
+      sorter: (a: IUsers, b: IUsers) => (a.city < b.city ? -1 : 1),
     },
     {
       title: "Country",
@@ -66,30 +113,76 @@ function UserTable() {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
+      render: (date: string) => (
+        <div>{new Date(date).toLocaleDateString()}</div>
+      ),
+    },
+    {
+      title: "",
+      dataIndex: "editDelete",
+      key: "editDelete",
+      render: (text: string, record: IUsers) => (
+        <div>
+          <Button
+            type="primary"
+            onClick={() => navigate("update", { state: record })}
+          >
+            Düzenle
+          </Button>{" "}
+          -{" "}
+          <Button danger onClick={() => handleDelete(record.key)}>
+            Sil
+          </Button>
+        </div>
+      ),
     },
   ];
 
-  const notifySuccess = (message:string) => toast.success(message);
-
+  const notifySuccess = (message: string) => toast.success(message);
 
   useEffect(() => {
-   const alert =  sessionStorage.getItem("updateAlert")
-   if(alert === "true"){
-    notifySuccess("Başarıyla Güncellendi")
-    sessionStorage.setItem("updateAlert","false")
-   }
-  }, [])
-  
+    const alert = sessionStorage.getItem("updateAlert");
+    if (alert === "true") {
+      notifySuccess("Başarıyla Güncellendi");
+      sessionStorage.setItem("updateAlert", "false");
+    }
+  }, []);
+
+  const { Title } = Typography;
+
+  const [filteredUsers, setFilteredUsers] = useState<IUsers[] | null>(null);
+
+  const searchData = (value: string) => {
+    const filteredData = users
+      .filter((item: IUsers) =>
+        JSON.stringify(item).toLowerCase().includes(value.toLowerCase())
+      )
+      .map((item: IUsers) => ({ ...item, key: item.id }));
+
+    setFilteredUsers(filteredData);
+  };
 
   return (
-    <>
-      <Button
-        type="primary"
-      >
-        Selam
-      </Button>
+    <Layout
+      style={{
+        padding: 8,
+      }}
+    >
+      <Title style={{ textAlign: "center" }} level={2}>
+        Users Table
+      </Title>
+      <Flex justify="end">
+        <Search
+          placeholder="Bir şeyler arayın..."
+          allowClear
+          enterButton="Search"
+          size="large"
+          onChange={(e) => searchData(e.target.value)}
+          style={{ width: "300px", marginBottom: ".5rem" }}
+        />
+      </Flex>
       <Table
-        dataSource={memoizedUsers}
+        dataSource={filteredUsers ?? memoizedUsers}
         columns={columns}
         pagination={{ pageSize: 5 }}
         loading={{
@@ -100,14 +193,15 @@ function UserTable() {
           ),
           spinning: isLoading,
         }}
-        onRow={(record: IUsers) => {
-          return {
-            onClick: () => navigate("update", { state: record }),
-          };
-        }}
       />
       <Toaster />
-    </>
+      <Modal
+        title="Silmek İstediğinizden Emin misiniz?"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      ></Modal>
+    </Layout>
   );
 }
 

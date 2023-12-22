@@ -20,8 +20,15 @@ export const apiSlice = createApi({
                 body:user
             }),
             invalidatesTags:["Users"]
+        }),
+        deleteUser:builder.mutation({
+            query:(id)=>({
+                url:`/users/${+id}`,
+                method:"DELETE",
+            }),
+            invalidatesTags:["Users"]
         })
     })
 })  
 
-export const {useGetUsersQuery,useUpdateUsersMutation} = apiSlice
+export const {useGetUsersQuery,useUpdateUsersMutation,useDeleteUserMutation} = apiSlice

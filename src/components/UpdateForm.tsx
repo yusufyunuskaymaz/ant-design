@@ -1,23 +1,15 @@
-import React, { useEffect } from "react";
-import { Button, Col, Form, Input, Row } from "antd";
+import  { useEffect } from "react";
+import { Button, Col, Form, Input, Layout, Row, Typography } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
-import { IUsers } from "../types";
+import { FieldType, IUsers } from "../types";
 import { useUpdateUsersMutation } from "../features/api/apiSlice";
 
-type FieldType = {
-  name: string;
-  city: string;
-  country: string;
-  job: string;
-  createdAt: string;
-};
+
 
 const UpdateForm = () => {
   const { state: data } = useLocation();
 
-
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const initialValues: FieldType = {
     name: data.name,
@@ -27,35 +19,40 @@ const UpdateForm = () => {
     createdAt: data.createdAt,
   };
 
-  const [updateUsers, {  isSuccess, isLoading }] = useUpdateUsersMutation();
+  const [updateUsers, { isSuccess, isLoading }] = useUpdateUsersMutation();
 
   const onFinish = (values: IUsers) => {
-    updateUsers({ ...values, id: data.key })
+    updateUsers({ ...values, id: data.key });
   };
 
   useEffect(() => {
     if (isSuccess) {
-      sessionStorage.setItem("updateAlert","true")
-      navigate("/")
+      sessionStorage.setItem("updateAlert", "true");
+      navigate("/");
     }
   }, [isSuccess]);
 
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
-  };
+
+  const { Title } = Typography;
+
 
   return (
+    <Layout style={{height:"100vh"}}>
+
+  
     <Row justify="center">
-      <Col span={24}>
+      <Col xs={{ span: 24 }} md={{ span: 24 }}>
+      <Title style={{ textAlign: "center",marginBottom:25 }} level={2}>
+        Update User
+      </Title>
         <Form
           name="basic"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
-          style={{ maxWidth: 600, margin: "auto" }}
+          style={{ maxWidth: 600, margin:"auto" }}
           initialValues={initialValues}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
           <Form.Item<FieldType>
@@ -89,21 +86,23 @@ const UpdateForm = () => {
           <Form.Item<FieldType>
             label="Created At"
             name="createdAt"
-            rules={[
-              { required: true, message: "Please input your createdAt!" },
-            ]}
+            
           >
-            <Input />
+            <Input disabled />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+            <Button style={{marginRight:10}} danger onClick={()=>navigate("/")} >
+              İptal Et
+            </Button>
             <Button loading={isLoading} type="primary" htmlType="submit">
-              Submit
+              Güncelle
             </Button>
           </Form.Item>
         </Form>
       </Col>
     </Row>
+    </Layout>
   );
 };
 
